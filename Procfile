@@ -1,1 +1,1 @@
-web: python main:Handler.py
+web: python Handler.py
