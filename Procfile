@@ -1,1 +1,1 @@
-web: gunicorn domino_back:app --preload
+web: gunicorn :app --preload
