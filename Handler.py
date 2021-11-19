@@ -1,8 +1,7 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
-# import pyodbc
 import psycopg2
-from datetime import datetime
 import json
+import os
 
 
 class S(BaseHTTPRequestHandler):
@@ -39,7 +38,7 @@ def do_POST(self):
     self.wfile.write(self._html("POST!"))
 
 
-def run(server_class=HTTPServer, handler_class=S, addr="localhost", port=80):
+def run(server_class=HTTPServer, handler_class=S, addr='', port=os.environ['PORT']):
     server_address = (addr, port)
     httpd = server_class(server_address, handler_class)
 
@@ -76,6 +75,7 @@ class Sql:
         ans = json.dumps(somedict, ensure_ascii=False)
         return ans
 
+
 def get_class_list():
     sql = Sql()
     # query = "select * from Domino;"
@@ -90,5 +90,7 @@ def get_class_list():
     ans = json.dumps(somedict, ensure_ascii=False)
     print("Answer: " + ans)
     return ans
+
+
 if __name__ == "__main__":
     run()
