@@ -5,9 +5,6 @@ import os
 
 
 class S(BaseHTTPRequestHandler):
-    def __init__(self):
-        self.sql = Sql()
-
     def _set_headers(self):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
@@ -22,7 +19,8 @@ class S(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self._set_headers()
-        ans = self.sql.get_class_list()
+        sql = Sql()
+        ans = sql.get_class_list()
         print("Answer: " + ans)
         self.wfile.write(self._html(ans))
 
