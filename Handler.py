@@ -19,9 +19,12 @@ class S(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self._set_headers()
-        ans = get_class_list()
+        if self.path == "":
+            ans = get_class_list()
+        elif self.path == "/{id}":
+            ans = get_theme_list(id)
         print("Answer: " + ans)
-        self.wfile.write(self._html(ans))
+        self.wfile.write(ans)
 
     def do_HEAD(self):
         self._set_headers()
@@ -49,7 +52,7 @@ class Sql:
 
 def get_class_list():
     sql = Sql()
-    res = sql.cur.execute("select * from Domino;")
+    res = sql.cur.execute("select distinct class_number from Domino;")
     res2 = sql.cur.fetchall()
     sql.conn.commit()
     sql.cur.close()
