@@ -5,6 +5,9 @@ import os
 
 
 class S(BaseHTTPRequestHandler):
+    def __init__(self):
+        self.sql = Sql()
+
     def _set_headers(self):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
@@ -19,23 +22,16 @@ class S(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self._set_headers()
+        ans = self.sql.get_class_list()
+        print("Answer: " + ans)
+        self.wfile.write(self._html(ans))
 
-        # query = """select Base.class, Base.theme, Base.variant, Domino.left_side, Domino.right_side, Domino.correct_answer
-        #                                 from Base, Domino
-        #                                 where Base.id_domino = Domino.id"""
-        ans = get_class_list()
-        # print("Answer: " + ans)
-        self.wfile.write(ans.encode())
+    def do_HEAD(self):
+        self._set_headers()
 
-
-def do_HEAD(self):
-    self._set_headers()
-
-
-def do_POST(self):
-    # Doesn't do anything with posted data
-    self._set_headers()
-    self.wfile.write(self._html("POST!"))
+    def do_POST(self):
+        self._set_headers()
+        self.wfile.write(self._html("POST!"))
 
 
 def run(server_class=HTTPServer, handler_class=S, addr='', port=int(os.environ.get('PORT', '8000'))):
@@ -54,42 +50,21 @@ class Sql:
         self.cur = self.conn.cursor()
 
     def get_class_list(self):
-        # query = "select * from Domino;"
-        res = self.cur.execute("select * from Domino;")
-        res2 = res.fetchone()
+        res = self.cur.execute("select distinct class_number from Domino;")
+        res2 = res.fetchall()
         self.conn.commit()
-        for i in res2:
-            print(i)
-        somedict = {"classes": [list(x) for x in res2]}
+        somedict = {"classes": [x for x in res2]}
         ans = json.dumps(somedict, ensure_ascii=False)
         return ans
 
     def get_theme_list(self, class_number):
         sql = Sql()
         cursor = sql.conn.cursor()
-        query = f"select distinct theme from [dbo].[Domino] where class_number = {class_number}"
+        query = f"select distinct theme from Domino where class_number = {class_number};"
         res = cursor.execute(query).fetchall()
-        # for i in res:
-        #     print(i)
-        somedict = {"classes": [str(x[0]) for x in res]}
+        somedict = {"class_number": class_number, "themes": [x for x in res]}
         ans = json.dumps(somedict, ensure_ascii=False)
         return ans
-
-
-def get_class_list():
-    sql = Sql()
-    # query = "select * from Domino;"
-    res = sql.cur.execute("select * from Domino;")
-    res2 = sql.cur.fetchall()
-    sql.conn.commit()
-    sql.cur.close()
-    sql.conn.close()
-    for i in res2:
-        print(i)
-    somedict = {"classes": [x for x in res2]}
-    ans = json.dumps(somedict, ensure_ascii=False)
-    print("Answer: " + ans)
-    return ans
 
 
 if __name__ == "__main__":
