@@ -1,6 +1,7 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import psycopg2
 import json
+import os
 import re
 
 class S(BaseHTTPRequestHandler):
