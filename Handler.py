@@ -1,8 +1,7 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import psycopg2
 import json
-import os
-
+import re
 
 class S(BaseHTTPRequestHandler):
     def _set_headers(self):
@@ -19,12 +18,15 @@ class S(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self._set_headers()
-        if self.path == "":
+        ans = ''
+        a = self.path[1:].isdigit()
+        print(a)
+        if self.path == "/":
             ans = get_class_list()
-        elif self.path == "/{id}":
-            ans = get_theme_list(id)
+        elif self.path[1:].isdigit():
+            ans = get_theme_list(int(self.path[1:]))
         print("Answer: " + ans)
-        self.wfile.write(ans)
+        self.wfile.write(ans.encode())
 
     def do_HEAD(self):
         self._set_headers()
@@ -57,19 +59,33 @@ def get_class_list():
     sql.conn.commit()
     sql.cur.close()
     sql.conn.close()
-    somedict = {"classes": [x for x in res2]}
+    somedict = {"classes": [x[0] for x in res2]}
     ans = json.dumps(somedict, ensure_ascii=False)
-    print("Answer: " + ans)
     return ans
 
-def get_theme_list(self, class_number):
+
+def get_theme_list(class_number):
     sql = Sql()
-    cursor = sql.conn.cursor()
-    query = f"select distinct theme from Domino where class_number = {class_number};"
-    res = cursor.execute(query).fetchall()
-    somedict = {"class_number": class_number, "themes": [x for x in res]}
+    res = sql.cur.execute(f"select distinct theme from Domino where class_number = {class_number};")
+    res2 = sql.cur.fetchall()
+    sql.conn.commit()
+    sql.cur.close()
+    sql.conn.close()
+    somedict = {"class_number": class_number, "themes": [x[0] for x in res2]}
     ans = json.dumps(somedict, ensure_ascii=False)
     return ans
+
+def get_input_list(class_number, theme):
+    sql = Sql()
+    res = sql.cur.execute(f"select id, variant, count_dominoshek from Domino where class_number = {class_number} and theme like\'{theme}\';")
+    res2 = sql.cur.fetchall()
+    sql.conn.commit()
+    sql.cur.close()
+    sql.conn.close()
+    somedict = {"class_number": class_number, "theme": theme, "input": [x for x in res2]}
+    ans = json.dumps(somedict, ensure_ascii=False)
+    return ans
+
 
 if __name__ == "__main__":
     run()
