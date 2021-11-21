@@ -7,7 +7,7 @@ import os
 class S(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)
-        self.send_header("Content-type", "text/html")
+        self.send_header("Content-type", "text/html; charset=utf-8")
         self.end_headers()
 
     def _html(self, message):
@@ -19,8 +19,7 @@ class S(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self._set_headers()
-        sql = Sql()
-        ans = sql.get_class_list()
+        ans = get_class_list()
         print("Answer: " + ans)
         self.wfile.write(self._html(ans))
 
@@ -47,23 +46,27 @@ class Sql:
             sslmode='require')
         self.cur = self.conn.cursor()
 
-    def get_class_list(self):
-        res = self.cur.execute("select distinct class_number from Domino;")
-        res2 = res.fetchall()
-        self.conn.commit()
-        somedict = {"classes": [x for x in res2]}
-        ans = json.dumps(somedict, ensure_ascii=False)
-        return ans
 
-    def get_theme_list(self, class_number):
-        sql = Sql()
-        cursor = sql.conn.cursor()
-        query = f"select distinct theme from Domino where class_number = {class_number};"
-        res = cursor.execute(query).fetchall()
-        somedict = {"class_number": class_number, "themes": [x for x in res]}
-        ans = json.dumps(somedict, ensure_ascii=False)
-        return ans
+def get_class_list():
+    sql = Sql()
+    res = sql.cur.execute("select * from Domino;")
+    res2 = sql.cur.fetchall()
+    sql.conn.commit()
+    sql.cur.close()
+    sql.conn.close()
+    somedict = {"classes": [x for x in res2]}
+    ans = json.dumps(somedict, ensure_ascii=False)
+    print("Answer: " + ans)
+    return ans
 
+def get_theme_list(self, class_number):
+    sql = Sql()
+    cursor = sql.conn.cursor()
+    query = f"select distinct theme from Domino where class_number = {class_number};"
+    res = cursor.execute(query).fetchall()
+    somedict = {"class_number": class_number, "themes": [x for x in res]}
+    ans = json.dumps(somedict, ensure_ascii=False)
+    return ans
 
 if __name__ == "__main__":
     run()
