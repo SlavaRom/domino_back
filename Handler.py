@@ -9,7 +9,7 @@ from urllib.parse import unquote_plus
 class S(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)
-        self.send_header("Content-type", "application/json; charset=utf-8")
+        self.send_header("Content-type", "text/html; charset=utf-8")
         self.end_headers()
 
     def _html(self, message):
@@ -20,7 +20,7 @@ class S(BaseHTTPRequestHandler):
         return content.encode("utf8")  # NOTE: must return a bytes object!
 
     def do_GET(self):
-        self._set_headers()
+        # self._set_headers()
         ans = ''
         a = self.path.split('/')[1:]
         if len(a) == 1 and a[0].isdigit():
@@ -32,6 +32,10 @@ class S(BaseHTTPRequestHandler):
         elif len(a) == 3:
             ans = get_all_Dominoshek_list(int(a[0]))
         print("Answer: " + ans)
+        self.send_response(200)
+        self.send_header("Accept-Encoding", "gzip, deflate, br")
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.end_headers()
         self.wfile.write(ans.encode())
         self.wfile.flush()
         self.connection.close()
