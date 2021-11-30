@@ -96,7 +96,7 @@ def get_id_variant_countDominoshek_list(class_number, theme):
     sql.conn.commit()
     sql.cur.close()
     sql.conn.close()
-    somedict = {"class_number": class_number, "theme": theme, "var": [x for x in res2]}
+    somedict = {"class_number": class_number, "theme": theme, "var": [x[0] for x in res2]}
     ans = json.dumps(somedict, ensure_ascii=False)
     return ans
 
