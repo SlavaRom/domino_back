@@ -33,6 +33,8 @@ class S(BaseHTTPRequestHandler):
             ans = get_all_Dominoshek_list(int(a[0]))
         print("Answer: " + ans)
         self.wfile.write(ans.encode())
+        self.wfile.flush()
+        self.connection.close()
 
     def do_HEAD(self):
         self._set_headers()
