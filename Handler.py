@@ -1,13 +1,15 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import psycopg2
 import json
-import os
 import re
+import os
+from urllib.parse import unquote_plus
+
 
 class S(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)
-        self.send_header("Content-type", "text/html; charset=utf-8")
+        self.send_header("Content-type", "application/json; charset=utf-8")
         self.end_headers()
 
     def _html(self, message):
@@ -20,12 +22,15 @@ class S(BaseHTTPRequestHandler):
     def do_GET(self):
         self._set_headers()
         ans = ''
-        a = self.path[1:].isdigit()
-        print(a)
-        if self.path == "/":
+        a = self.path.split('/')[1:]
+        if len(a) == 1 and a[0].isdigit():
+            ans = get_theme_list(int(a[0]))
+        elif len(a) == 1 and a[0] == '':
             ans = get_class_list()
-        elif self.path[1:].isdigit():
-            ans = get_theme_list(int(self.path[1:]))
+        elif len(a) == 2:
+            ans = get_id_variant_countDominoshek_list(int(a[0]), unquote_plus(a[1]))
+        elif len(a) == 3:
+            ans = get_all_Dominoshek_list(int(a[0]))
         print("Answer: " + ans)
         self.wfile.write(ans.encode())
 
@@ -37,7 +42,7 @@ class S(BaseHTTPRequestHandler):
         self.wfile.write(self._html("POST!"))
 
 
-def run(server_class=HTTPServer, handler_class=S, addr='', port=int(os.environ.get('PORT', '8000'))):
+def run(server_class=HTTPServer, handler_class=S, addr='localhost', port=80):
     server_address = (addr, port)
     httpd = server_class(server_address, handler_class)
 
@@ -76,14 +81,29 @@ def get_theme_list(class_number):
     ans = json.dumps(somedict, ensure_ascii=False)
     return ans
 
-def get_input_list(class_number, theme):
+
+def get_id_variant_countDominoshek_list(class_number, theme):
     sql = Sql()
-    res = sql.cur.execute(f"select id, variant, count_dominoshek from Domino where class_number = {class_number} and theme like\'{theme}\';")
+    res = sql.cur.execute(
+        f"select variant from Domino where class_number = {class_number} and theme like\'{theme}\';")
     res2 = sql.cur.fetchall()
     sql.conn.commit()
     sql.cur.close()
     sql.conn.close()
-    somedict = {"class_number": class_number, "theme": theme, "input": [x for x in res2]}
+    somedict = {"class_number": class_number, "theme": theme, "var": [x for x in res2]}
+    ans = json.dumps(somedict, ensure_ascii=False)
+    return ans
+
+def get_all_Dominoshek_list(var):
+    sql = Sql()
+    res = sql.cur.execute(
+        f"select left_side, right_side, position from Dominoshka join (select id_dominoshki, position from "
+        f"Input where id_domino = {var}) S on Dominoshka.id = S.id_dominoshki")
+    res2 = sql.cur.fetchall()
+    sql.conn.commit()
+    sql.cur.close()
+    sql.conn.close()
+    somedict = {"dominoshki": [x for x in res2]}
     ans = json.dumps(somedict, ensure_ascii=False)
     return ans
 
