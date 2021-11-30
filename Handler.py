@@ -42,7 +42,7 @@ class S(BaseHTTPRequestHandler):
         self.wfile.write(self._html("POST!"))
 
 
-def run(server_class=HTTPServer, handler_class=S, addr='localhost', port=80):
+def run(server_class=HTTPServer, handler_class=S, addr='', port=int(os.environ.get('PORT', '8000'))):
     server_address = (addr, port)
     httpd = server_class(server_address, handler_class)
 
