@@ -34,7 +34,6 @@ class S(BaseHTTPRequestHandler):
         print("Answer: " + ans)
         self.send_response(200)
         self.send_header("Accept-Encoding", "gzip, deflate, br")
-        self.send_header("Content-Length", str(len(ans)))
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.end_headers()
         self.wfile.write(ans.encode())
