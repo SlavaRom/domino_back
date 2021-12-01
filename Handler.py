@@ -66,7 +66,7 @@ class Sql:
 
 def get_class_list():
     sql = Sql()
-    res = sql.cur.execute("select distinct class_number from Domino;")
+    res = sql.cur.execute("select distinct class_number from Domino order by class_number;")
     res2 = sql.cur.fetchall()
     sql.conn.commit()
     sql.cur.close()
