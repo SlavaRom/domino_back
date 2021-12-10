@@ -30,7 +30,8 @@ class S(BaseHTTPRequestHandler):
         elif len(a) == 2:
             ans = get_id_variant_countDominoshek_list(int(a[0]), unquote_plus(a[1]))
         elif len(a) == 3:
-            ans = get_all_Dominoshek_list(int(a[0]))
+            id_domino, count_dominoshek = get_id_Domino(int(a[0]), unquote_plus(a[1]), int(a[2]))
+            ans = get_all_Dominoshek_list(id_domino, count_dominoshek)
         print("Answer: " + ans)
         self.send_response(200)
         self.send_header("Accept-Encoding", "gzip, deflate, br")
@@ -100,16 +101,26 @@ def get_id_variant_countDominoshek_list(class_number, theme):
     ans = json.dumps(somedict, ensure_ascii=False)
     return ans
 
-def get_all_Dominoshek_list(var):
+def get_id_Domino(class_number, theme, var):
+    sql = Sql()
+    res = sql.cur.execute(
+        f"select id, count_dominoshek from Domino where class_number = {class_number} and theme like'{theme}' and variant = {var};")
+    res2 = sql.cur.fetchone()
+    sql.conn.commit()
+    sql.cur.close()
+    sql.conn.close()
+    return res2
+
+def get_all_Dominoshek_list(id, count_dominoshek):
     sql = Sql()
     res = sql.cur.execute(
         f"select left_side, right_side, position from Dominoshka join (select id_dominoshki, position from "
-        f"Input where id_domino = {var}) S on Dominoshka.id = S.id_dominoshki")
+        f"Input where id_domino = {id}) S on Dominoshka.id = S.id_dominoshki;")
     res2 = sql.cur.fetchall()
     sql.conn.commit()
     sql.cur.close()
     sql.conn.close()
-    somedict = {"dominoshki": [x for x in res2]}
+    somedict = {"dominoshki": [x for x in res2], "count_dominoshek": count_dominoshek}
     ans = json.dumps(somedict, ensure_ascii=False)
     return ans
 
