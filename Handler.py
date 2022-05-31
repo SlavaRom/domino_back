@@ -5,7 +5,6 @@ import re
 import os
 from urllib.parse import unquote_plus
 
-
 class S(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)
