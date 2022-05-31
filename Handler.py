@@ -59,7 +59,7 @@ def run(server_class=HTTPServer, handler_class=S, addr='', port=int(os.environ.g
 class Sql:
     def __init__(self):
         self.conn = psycopg2.connect(
-            'postgres://ebibkbpkmajcmc:3debdeb3e863c248bd647e707ce36209c7d1b548073dadfc963ba0c13a6687c7@ec2-63-32-30-191.eu-west-1.compute.amazonaws.com:5432/dba0k1bgq8tlgs',
+            'postgres://tzdwxnicyxkgek:723faa490011045e68f956375f877deea1e16bf4999b137c3dd7098ed952ea51@ec2-52-30-159-47.eu-west-1.compute.amazonaws.com:5432/d5de6itbqmsop6',
             sslmode='require')
         self.cur = self.conn.cursor()
 
