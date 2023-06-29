@@ -123,6 +123,5 @@ def get_all_Dominoshek_list(id, count_dominoshek):
     ans = json.dumps(somedict, ensure_ascii=False)
     return ans
 
-
 if __name__ == "__main__":
     run()
